@@ -5,7 +5,7 @@ department time and in-hospital sepsis, and how has that changed from 2021–22 
 
 **Tools:** SQL Server (T-SQL), Power BI (Power Query, DAX). **Data:** CIHI Indicator Library, public aggregate data.
 
-![Scorecard page](powerbi/screenshots/page1-scorecard.png)
+![Scorecard page](powerbi/screenshots/dashboard.png)
 
 ## Headline findings (2025–26)
 - **7 of 65** hospital corporations are worse than Ontario on 2 or more of the 3 indicators; **27** on at least one. All 7 are teaching hospitals; The Ottawa Hospital is flagged on all 3.
