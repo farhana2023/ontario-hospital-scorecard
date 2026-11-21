@@ -1,0 +1,29 @@
+# Raw CIHI data: re-download instead of committing (see data/raw/README.md)
+data/raw/*.csv
+data/raw/*.xlsx
+
+# Power BI temp / backup files (the .pbix itself IS committed)
+*.pbix.bak
+~$*
+.pbi/localSettings.json
+.pbi/cache.abf
+
+# SQL Server / SSMS
+*.bak
+*.mdf
+*.ldf
+*.ssmssqlproj.user
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vs/
+.vscode/
+*.suo
+*.user
+
+# Python (if you add notebooks later)
+__pycache__/
+.ipynb_checkpoints/
+.venv/

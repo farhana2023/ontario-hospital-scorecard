@@ -1,0 +1,23 @@
+model Model
+	culture: en-CA
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-CA
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["dim_hospital","dim_indicator","dim_year","fact_scorecard","ontario_benchmark"]
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table dim_hospital
+ref table dim_indicator
+ref table dim_year
+ref table fact_scorecard
+ref table ontario_benchmark
+
+ref cultureInfo en-CA
+

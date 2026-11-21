@@ -1,0 +1,127 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "95fecacde01482071ce0",
+  "displayName": "Page 1",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "455705d2016b48df868e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "346d48e9b2e643e5b199",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "6ead1593ead04259b5c1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "6dcafbacb9d92208ba67",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "304d170cf2f34f15bccf",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "27fc2fbc8f814603b3d5",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "f18db2665ca4ea31ee3e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "86c2d25c37bb4095bdd5",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "50ceeb85e53a4851bf81",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "60f1519e40bb66e3032b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "bbb1e10592694a0ea18e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "65e0c0fa9d8d4d06835d",
+      "type": "NoFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "478a3ee94d690a63b56a",
+      "type": "DataFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "d5c9ecd42a3168829359",
+      "type": "DataFilter"
+    },
+    {
+      "source": "6db8475e506b2ac7e047",
+      "target": "5a5acece213302d0c7dc",
+      "type": "DataFilter"
+    }
+  ],
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "image": {
+            "image": {
+              "name": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'dashboard-background.png'"
+                  }
+                }
+              },
+              "url": {
+                "expr": {
+                  "ResourcePackageItem": {
+                    "PackageName": "RegisteredResources",
+                    "PackageType": 1,
+                    "ItemName": "dashboard-background.png"
+                  }
+                }
+              },
+              "scaling": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Fit'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

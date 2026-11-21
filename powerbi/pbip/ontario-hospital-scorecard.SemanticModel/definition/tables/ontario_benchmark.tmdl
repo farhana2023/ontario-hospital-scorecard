@@ -1,0 +1,61 @@
+table ontario_benchmark
+	lineageTag: 5a0f41b6-7f79-4eab-a5dc-a18343697946
+
+	column indicator_code
+		dataType: string
+		lineageTag: 7bc85abd-62d6-4337-a22a-723eb89771ba
+		summarizeBy: none
+		sourceColumn: indicator_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column fiscal_year_start
+		dataType: int64
+		formatString: 0
+		lineageTag: 572ebad0-8de3-47e0-80ab-7cb161884c9c
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+		annotation SummarizationSetBy = Automatic
+
+	column ontario_value
+		dataType: double
+		lineageTag: 674a52d4-1d3b-4826-8119-d5ecf5757759
+		summarizeBy: sum
+		sourceColumn: ontario_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ontario_ci_lower
+		dataType: double
+		lineageTag: 1c15fc11-a095-4e10-9734-3d2ac1dd85a6
+		summarizeBy: sum
+		sourceColumn: ontario_ci_lower
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ontario_ci_upper
+		dataType: double
+		lineageTag: fe3341b9-3eaf-499b-87f5-95e18ce16749
+		summarizeBy: sum
+		sourceColumn: ontario_ci_upper
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition ontario_benchmark = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("GAZI\SQLEXPRESS", "OntarioScorecard"),
+				    mart_ontario_benchmark = Source{[Schema="mart",Item="ontario_benchmark"]}[Data]
+				in
+				    mart_ontario_benchmark
+
+	annotation PBI_ResultType = Table
+

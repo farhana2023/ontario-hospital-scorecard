@@ -1,0 +1,8 @@
+DEFINE
+    MEASURE fact_scorecard[Hospital Line] =
+        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [Hospital Value] )
+    MEASURE fact_scorecard[Hospital CI Lower] =
+        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [CI Lower] )
+    MEASURE fact_scorecard[Hospital CI Upper] =
+        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [CI Upper] )
+EVALUATE ROW ( "ok", 1 )

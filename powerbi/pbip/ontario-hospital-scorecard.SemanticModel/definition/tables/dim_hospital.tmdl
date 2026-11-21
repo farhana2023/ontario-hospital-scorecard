@@ -1,0 +1,56 @@
+table dim_hospital
+	lineageTag: f1201900-9db8-4cc8-9dbf-c62e6d281668
+
+	column hospital_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 46906c27-ca99-49d5-b62d-6aef1498d1cb
+		summarizeBy: none
+		sourceColumn: hospital_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column hospital_name
+		dataType: string
+		lineageTag: 1668c73a-5278-4216-ab20-12e558be140e
+		summarizeBy: none
+		sourceColumn: hospital_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: 50b87108-79c7-4ec7-9fe9-10414b4e5286
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	column size_band
+		dataType: string
+		lineageTag: 096a85b2-b897-47b2-81e6-f8790d5c05a6
+		summarizeBy: none
+		sourceColumn: size_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column size_band_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: a03a9902-18ca-4055-b9dc-c60f09ad55a1
+		summarizeBy: none
+		sourceColumn: size_band_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_hospital = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("GAZI\SQLEXPRESS", "OntarioScorecard"),
+				    mart_dim_hospital = Source{[Schema="mart",Item="dim_hospital"]}[Data]
+				in
+				    mart_dim_hospital
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,289 @@
+table fact_scorecard
+	lineageTag: 3d422f7b-ee8e-44af-8180-f89efa5b9bce
+
+	measure 'Hospital Value' = AVERAGE ( fact_scorecard[value] )
+		lineageTag: 5240fd88-3e73-4aa0-948d-73281b7ef77d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'CI Lower' = AVERAGE ( fact_scorecard[ci_lower] )
+		lineageTag: 105dce66-1735-4a79-95b4-192b31b250e8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'CI Upper' = AVERAGE ( fact_scorecard[ci_upper] )
+		lineageTag: d579f27a-32df-4e55-915c-042da85cb59d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ontario Value' = AVERAGE ( ontario_benchmark[ontario_value] )
+		lineageTag: 8e1f5e43-44e9-4dba-86df-751bd4e325c0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Flag Label' = SELECTEDVALUE ( fact_scorecard[flag] )
+		lineageTag: d63c13e6-ca04-4f17-a4ec-e4bfc6a2da2b
+
+	measure 'Worse Flags' = SUM ( fact_scorecard[is_worse] ) + 0
+		formatString: 0
+		lineageTag: 109380d2-8280-4ea3-b793-b46ddef35b7c
+
+	measure 'Selected Year' = SELECTEDVALUE ( dim_year[fiscal_year_label], "multiple years" )
+		lineageTag: fb5fb0bc-6b64-44d3-b02e-c2a7e6788d44
+
+	measure Hospitals = DISTINCTCOUNT ( fact_scorecard[hospital_id] )
+		formatString: 0
+		lineageTag: 2a0977fe-67f8-4173-8411-ccf764d61a5f
+
+	measure 'Hospitals Flagged 1+' = ```
+			
+			        COUNTROWS (
+			            FILTER ( VALUES ( dim_hospital[hospital_id] ),
+			                     CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ) ) >= 1 ) ) + 0
+			```
+		formatString: 0
+		lineageTag: 6a892b0f-0713-423f-8ffe-1cf189bf17e9
+
+	measure 'Hospitals Flagged 2+' = ```
+			
+			        COUNTROWS (
+			            FILTER ( VALUES ( dim_hospital[hospital_id] ),
+			                     CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ) ) >= 2 ) ) + 0
+			```
+		formatString: 0
+		lineageTag: 29d83301-bdbe-4ce2-9432-ee836ff9c555
+
+	measure Headline = ```
+			
+			        FORMAT ( [Hospitals Flagged 2+], "0" ) & " of " & FORMAT ( [Hospitals], "0" )
+			            & " hospital corporations are worse than Ontario on 2 or more of the 3 indicators in "
+			            & [Selected Year] & "; " & FORMAT ( [Hospitals Flagged 1+], "0" ) & " on at least one."
+			```
+		lineageTag: 7c8fe4b3-c0c6-46f4-9eee-03131d4ffc6c
+
+	measure 'Ontario Value PY' = ```
+			
+			        VAR y = SELECTEDVALUE ( dim_year[fiscal_year_start] )
+			        RETURN CALCULATE ( [Ontario Value], REMOVEFILTERS ( dim_year ), dim_year[fiscal_year_start] = y - 1 )
+			```
+		lineageTag: 704221ce-c5f1-49ab-9ab1-da36ba3242ef
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ontario Change vs PY' = [Ontario Value] - [Ontario Value PY]
+		lineageTag: ad503ebe-b817-4f27-9605-7191c1bc6235
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ontario Change Label' = ```
+			
+			        VAR c = [Ontario Change vs PY]
+			        RETURN IF ( ISBLANK ( c ), BLANK (),
+			                    IF ( c > 0, "▲ ", IF ( c < 0, "▼ ", "■ " ) ) & FORMAT ( ABS ( c ), "0.0" ) & " vs previous year" )
+			```
+		lineageTag: 687258f6-8e97-42b0-981a-88cff9444ef4
+
+	measure 'Ontario Change Color' =
+			// lower is better on all 3 indicators
+			        VAR c = [Ontario Change vs PY]
+			        RETURN SWITCH ( TRUE (), ISBLANK ( c ), "#6B7280", c > 0, "#B42318", c < 0, "#1E7B4A", "#6B7280" )
+		lineageTag: 9dea7b90-541a-4148-96c8-634db9a6528e
+
+	measure Readmission = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "READMIT", dim_year[is_latest] = TRUE () )
+		lineageTag: 3faf14fd-9973-4245-8cad-84a8a59a16b2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'ED Hours' = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "ED90", dim_year[is_latest] = TRUE () )
+		lineageTag: c5ca79bb-dd80-44c2-a65d-bedb982bd3fc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sepsis = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "SEPSIS", dim_year[is_latest] = TRUE () )
+		lineageTag: 09beb733-b512-4b6a-8c6d-eb6433398ce6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Flag Color' = ```
+			
+			        SWITCH ( [Flag Label], "Worse", "#B42318", "Better", "#1E7B4A", "#1F2937" )
+			```
+		lineageTag: 9727f63d-c361-4411-8161-a6d81003949b
+
+	measure 'Readmission Color' = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "READMIT", dim_year[is_latest] = TRUE () )
+		lineageTag: 3eed6a73-4944-48f3-8bb3-9ef666f74fe1
+
+	measure 'ED Hours Color' = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "ED90", dim_year[is_latest] = TRUE () )
+		lineageTag: a81bb239-5564-48bb-962c-8313fb1e8fa3
+
+	measure 'Sepsis Color' = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "SEPSIS", dim_year[is_latest] = TRUE () )
+		lineageTag: 05551a17-88b6-47ec-b325-2b0aec0066f9
+
+	measure 'Total Worse Flags' = CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ), dim_year[is_latest] = TRUE () )
+		formatString: 0
+		lineageTag: 03c566b5-932b-4bf9-8d6d-5cd682e68091
+
+	measure 'Selected Hospital' = ```
+			
+			        SELECTEDVALUE ( dim_hospital[hospital_name], "Pick one hospital" )
+			```
+		lineageTag: f7ac27ee-fbbc-47e3-bac4-8037ce20ae1b
+
+	measure 'Trend Title' = ```
+			
+			        [Selected Hospital] & " vs Ontario, " & SELECTEDVALUE ( dim_indicator[short_name] )
+			```
+		lineageTag: f4aa480d-96e9-4016-ae22-8b92f8fe1343
+
+	measure 'Hospital Line' = ```
+			
+			        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [Hospital Value] )
+			```
+		lineageTag: d68c895a-77ee-48eb-881d-d8f8cb85f86e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Hospital CI Lower' = ```
+			
+			        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [CI Lower] )
+			```
+		lineageTag: eded7d1e-b83d-42cf-aecf-6b32c8ffa036
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Hospital CI Upper' = ```
+			
+			        IF ( HASONEVALUE ( dim_hospital[hospital_name] ), [CI Upper] )
+			```
+		lineageTag: 78718df4-041b-45c8-bb24-663f27b669de
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Flagged Value' = FORMAT ( [Hospitals Flagged 2+], "0" ) & " of " & FORMAT ( CALCULATE ( [Hospitals], REMOVEFILTERS ( dim_year ), REMOVEFILTERS ( dim_indicator ) ), "0" )
+		lineageTag: 5f0c7a52-1d2b-4c1e-9f3a-8a1d0b7e6c11
+
+	measure 'Flagged Sub Label' = FORMAT ( [Hospitals Flagged 1+], "0" ) & " flagged on at least one"
+		lineageTag: 8b7e2d44-3c5a-4f60-b1a9-2e6d9c0f4a22
+
+	column hospital_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b3b0936d-4ded-4452-9004-70d0f75fad93
+		summarizeBy: none
+		sourceColumn: hospital_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column indicator_code
+		dataType: string
+		lineageTag: 709ae3fe-e7b5-4a9e-b5f8-969a3fe6f205
+		summarizeBy: none
+		sourceColumn: indicator_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column fiscal_year_start
+		dataType: int64
+		formatString: 0
+		lineageTag: 6d1ce4cb-1c27-4075-a61e-80afca671e48
+		summarizeBy: none
+		sourceColumn: fiscal_year_start
+
+		annotation SummarizationSetBy = Automatic
+
+	column value
+		dataType: double
+		lineageTag: dd13af34-aac9-46bc-a476-9d39668c58ce
+		summarizeBy: sum
+		sourceColumn: value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ci_lower
+		dataType: double
+		lineageTag: 6103f48e-fe74-47aa-8bee-12d952fcea62
+		summarizeBy: sum
+		sourceColumn: ci_lower
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ci_upper
+		dataType: double
+		lineageTag: 3c63fe0f-e9fc-45f3-b862-0caefe245e82
+		summarizeBy: sum
+		sourceColumn: ci_upper
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column diff_from_ontario
+		dataType: double
+		lineageTag: d299411c-6c4c-463f-84c3-dd1e127f72f5
+		summarizeBy: sum
+		sourceColumn: diff_from_ontario
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column pct_diff_from_ontario
+		dataType: double
+		lineageTag: f306321b-a5b4-4788-90d4-32e36dabe077
+		summarizeBy: sum
+		sourceColumn: pct_diff_from_ontario
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column flag
+		dataType: string
+		lineageTag: 9c7663bc-f1e4-4bab-ba11-0df1a82b6268
+		summarizeBy: none
+		sourceColumn: flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_worse
+		dataType: int64
+		formatString: 0
+		lineageTag: 28f66deb-6809-4264-a278-14a94be3795c
+		summarizeBy: sum
+		sourceColumn: is_worse
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_better
+		dataType: int64
+		formatString: 0
+		lineageTag: eb04a24f-a1b8-4de2-a747-ec9793f15647
+		summarizeBy: sum
+		sourceColumn: is_better
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_suppressed
+		dataType: int64
+		formatString: 0
+		lineageTag: a0955e93-7544-4bcc-b466-1dcef0a03ed4
+		summarizeBy: sum
+		sourceColumn: is_suppressed
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_scorecard = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("GAZI\SQLEXPRESS", "OntarioScorecard"),
+				    mart_fact_scorecard = Source{[Schema="mart",Item="fact_scorecard"]}[Data]
+				in
+				    mart_fact_scorecard
+
+	annotation PBI_ResultType = Table
+

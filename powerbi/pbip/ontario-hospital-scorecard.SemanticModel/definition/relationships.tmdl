@@ -1,0 +1,20 @@
+relationship AutoDetected_8cc3b7de-e8ae-45cb-80fa-070bef1197e2
+	fromColumn: fact_scorecard.hospital_id
+	toColumn: dim_hospital.hospital_id
+
+relationship AutoDetected_f73375ec-b5d0-4c90-8c16-635165b45481
+	fromColumn: fact_scorecard.indicator_code
+	toColumn: dim_indicator.indicator_code
+
+relationship AutoDetected_f7e76ead-83af-4351-b71b-858c6ad43f3d
+	fromColumn: ontario_benchmark.indicator_code
+	toColumn: dim_indicator.indicator_code
+
+relationship AutoDetected_748d6240-ee3f-4728-be78-31b6ab315c32
+	fromColumn: fact_scorecard.fiscal_year_start
+	toColumn: dim_year.fiscal_year_start
+
+relationship AutoDetected_dae20d28-a56f-4814-80c5-3116a0dda263
+	fromColumn: ontario_benchmark.fiscal_year_start
+	toColumn: dim_year.fiscal_year_start
+

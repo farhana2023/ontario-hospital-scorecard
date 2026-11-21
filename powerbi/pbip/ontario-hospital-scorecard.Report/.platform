@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "ontario-hospital-scorecard"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1dbe5a07-ceb4-4cf2-94bf-283079b0b2b2"
+  }
+}

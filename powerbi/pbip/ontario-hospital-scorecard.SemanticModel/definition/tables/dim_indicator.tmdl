@@ -1,0 +1,89 @@
+table dim_indicator
+	lineageTag: 83888310-7b32-44a0-8baf-0a4260093b70
+
+	column indicator_code
+		dataType: string
+		lineageTag: 719097d4-b3b6-4d22-a858-0e5da896da1f
+		summarizeBy: none
+		sourceColumn: indicator_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column short_name
+		dataType: string
+		lineageTag: e3818517-7ff6-4685-b662-459ac80e62df
+		summarizeBy: none
+		sourceColumn: short_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column indicator_name
+		dataType: string
+		lineageTag: 86048a64-192d-4b84-b234-43da6b5d57ab
+		summarizeBy: none
+		sourceColumn: indicator_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column domain
+		dataType: string
+		lineageTag: 48ed30e6-8e3a-4200-99b2-b675f0e69168
+		summarizeBy: none
+		sourceColumn: domain
+
+		annotation SummarizationSetBy = Automatic
+
+	column metric
+		dataType: string
+		lineageTag: 789a53f6-2339-4d30-ae50-f148bff4e325
+		summarizeBy: none
+		sourceColumn: metric
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit_label
+		dataType: string
+		lineageTag: 8f44e461-5dbd-44e0-8b46-f32ab8cba39b
+		summarizeBy: none
+		sourceColumn: unit_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column has_ci
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 29fe05a1-d2f5-4278-9784-d1a17c7655eb
+		summarizeBy: none
+		sourceColumn: has_ci
+
+		annotation SummarizationSetBy = Automatic
+
+	column lower_is_better
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6c11bdf9-9569-43dc-af51-03e57d103fd3
+		summarizeBy: none
+		sourceColumn: lower_is_better
+
+		annotation SummarizationSetBy = Automatic
+
+	column sort_order
+		dataType: int64
+		formatString: 0
+		lineageTag: 1d450848-1e36-4bc3-8ceb-afc6393f7d8f
+		summarizeBy: sum
+		sourceColumn: sort_order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_indicator = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("GAZI\SQLEXPRESS", "OntarioScorecard"),
+				    mart_dim_indicator = Source{[Schema="mart",Item="dim_indicator"]}[Data]
+				in
+				    mart_dim_indicator
+
+	annotation PBI_ResultType = Table
+

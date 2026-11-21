@@ -1,0 +1,73 @@
+// measures.dax - all report measures.
+// Power BI Desktop > DAX query view > paste this whole file > Run, then click
+// "Update model: Add new measures" (or the CodeLens "Update model" above each MEASURE).
+// Measures land on fact_scorecard; move them to a display folder if you like.
+// Names differ from the table's columns (value, flag) because DAX names are case-insensitive.
+// Relationships needed first (Model view, single direction, many-to-one):
+//   fact_scorecard[hospital_id]       -> dim_hospital[hospital_id]
+//   fact_scorecard[indicator_code]    -> dim_indicator[indicator_code]
+//   fact_scorecard[fiscal_year_start] -> dim_year[fiscal_year_start]
+//   ontario_benchmark[indicator_code]    -> dim_indicator[indicator_code]
+//   ontario_benchmark[fiscal_year_start] -> dim_year[fiscal_year_start]
+
+DEFINE
+    // ---------- base ----------
+    MEASURE fact_scorecard[Hospital Value] = AVERAGE ( fact_scorecard[value] )
+    MEASURE fact_scorecard[CI Lower] = AVERAGE ( fact_scorecard[ci_lower] )
+    MEASURE fact_scorecard[CI Upper] = AVERAGE ( fact_scorecard[ci_upper] )
+    MEASURE fact_scorecard[Ontario Value] = AVERAGE ( ontario_benchmark[ontario_value] )
+    MEASURE fact_scorecard[Flag Label] = SELECTEDVALUE ( fact_scorecard[flag] )
+    MEASURE fact_scorecard[Worse Flags] = SUM ( fact_scorecard[is_worse] ) + 0
+    MEASURE fact_scorecard[Selected Year] = SELECTEDVALUE ( dim_year[fiscal_year_label], "multiple years" )
+
+    // ---------- headline ----------
+    MEASURE fact_scorecard[Hospitals] = DISTINCTCOUNT ( fact_scorecard[hospital_id] )
+    MEASURE fact_scorecard[Hospitals Flagged 1+] =
+        COUNTROWS (
+            FILTER ( VALUES ( dim_hospital[hospital_id] ),
+                     CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ) ) >= 1 ) ) + 0
+    MEASURE fact_scorecard[Hospitals Flagged 2+] =
+        COUNTROWS (
+            FILTER ( VALUES ( dim_hospital[hospital_id] ),
+                     CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ) ) >= 2 ) ) + 0
+    MEASURE fact_scorecard[Headline] =
+        FORMAT ( [Hospitals Flagged 2+], "0" ) & " of " & FORMAT ( [Hospitals], "0" )
+            & " Ontario hospital corporations are worse than the provincial value on two or more of the three indicators in "
+            & [Selected Year] & ", and " & FORMAT ( [Hospitals Flagged 1+], "0" ) & " on at least one."
+
+    // ---------- KPI cards (Ontario, vs previous year) ----------
+    MEASURE fact_scorecard[Ontario Value PY] =
+        VAR y = SELECTEDVALUE ( dim_year[fiscal_year_start] )
+        RETURN CALCULATE ( [Ontario Value], REMOVEFILTERS ( dim_year ), dim_year[fiscal_year_start] = y - 1 )
+    MEASURE fact_scorecard[Ontario Change vs PY] = [Ontario Value] - [Ontario Value PY]
+    MEASURE fact_scorecard[Ontario Change Label] =
+        VAR c = [Ontario Change vs PY]
+        RETURN IF ( ISBLANK ( c ), BLANK (),
+                    IF ( c > 0, "▲ ", IF ( c < 0, "▼ ", "■ " ) ) & FORMAT ( ABS ( c ), "0.0" ) & " vs previous year" )
+    MEASURE fact_scorecard[Ontario Change Color] =      // lower is better on all 3 indicators
+        VAR c = [Ontario Change vs PY]
+        RETURN SWITCH ( TRUE (), ISBLANK ( c ), "#6B7280", c > 0, "#B42318", c < 0, "#1E7B4A", "#6B7280" )
+
+    // ---------- scorecard table: one column per indicator ----------
+    MEASURE fact_scorecard[Readmission] = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "READMIT" )
+    MEASURE fact_scorecard[ED Hours] = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "ED90" )
+    MEASURE fact_scorecard[Sepsis] = CALCULATE ( [Hospital Value], dim_indicator[indicator_code] = "SEPSIS" )
+    MEASURE fact_scorecard[Flag Color] =
+        SWITCH ( [Flag Label], "Worse", "#B42318", "Better", "#1E7B4A", "#1F2937" )
+    MEASURE fact_scorecard[Readmission Color] = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "READMIT" )
+    MEASURE fact_scorecard[ED Hours Color] = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "ED90" )
+    MEASURE fact_scorecard[Sepsis Color] = CALCULATE ( [Flag Color], dim_indicator[indicator_code] = "SEPSIS" )
+    MEASURE fact_scorecard[Total Worse Flags] = CALCULATE ( [Worse Flags], REMOVEFILTERS ( dim_indicator ) )
+
+    // ---------- trend page ----------
+    MEASURE fact_scorecard[Selected Hospital] =
+        SELECTEDVALUE ( dim_hospital[hospital_name], "Pick one hospital" )
+    MEASURE fact_scorecard[Trend Title] =
+        [Selected Hospital] & " vs Ontario, " & SELECTEDVALUE ( dim_indicator[short_name] )
+
+// Quick test: latest year headline numbers. Expect 7, 27, 65 for 2025-26.
+EVALUATE
+    CALCULATETABLE (
+        ROW ( "Flagged 2+", [Hospitals Flagged 2+], "Flagged 1+", [Hospitals Flagged 1+], "Hospitals", [Hospitals] ),
+        dim_year[is_latest] = TRUE ()
+    )

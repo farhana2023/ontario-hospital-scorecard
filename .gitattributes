@@ -1,0 +1,5 @@
+# Keep CSVs byte-for-byte (LF endings) so BULK INSERT settings stay valid on Windows
+*.csv -text
+*.sql text eol=crlf
+*.md  text
+*.pbix binary
